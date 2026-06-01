@@ -13,7 +13,7 @@ test.describe('Authentication - 2FA', () => {
     await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
   });
 
-  test.only('TC-2FA-001 - Verify OTP screen renders after login', async () => {
+  test('TC-2FA-001 - Verify OTP screen renders after login', async () => {
     await expect(twoFA.screen).toBeVisible();
   });
 
