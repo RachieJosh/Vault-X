@@ -33,7 +33,6 @@ test.describe('Authentication - Login', () => {
   const validationMessage = await email.evaluate(
     (el) => el.validationMessage
   );
-
   expect(validationMessage).toBe('Please fill in this field.');
 });
 
@@ -42,5 +41,4 @@ test.describe('Authentication - Login', () => {
     await page.goto('/login');
     await expect(page).toHaveURL(/.*login/);
   });
-
 });
