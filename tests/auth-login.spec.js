@@ -33,7 +33,7 @@ test.describe('Authentication - Login', () => {
   const validationMessage = await email.evaluate(
     (el) => el.validationMessage
   );
-  expect(validationMessage).toBe('Please fill in this field.');
+  expect(validationMessage).toBe('Please fill out this field.');
 });
 
   test('TC_LOGIN_010 - Logged-in user redirected away from login page', async ({ page }) => {
