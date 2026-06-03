@@ -36,12 +36,9 @@ test.describe('Authentication - Login', () => {
     expect(validationMessage).toMatch(/fill out|required/i);
   });
 
-  // A logged-in user visiting /login should be redirected away from it
   test('TC_LOGIN_010 - Logged-in user redirected away from login page', async ({ page }) => {
     await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
-    // Wait until we're past the login page (2FA or dashboard)
     await expect(page).not.toHaveURL(/.*login/);
-    // Attempt to navigate back to /login
     await page.goto('/login');
     await expect(page).not.toHaveURL(/.*login/);
   });
