@@ -8,7 +8,11 @@ export class ReceivePage {
   }
 
   async goto() {
-    await this.page.goto('/transfer');
+    if (!this.page.url().includes('/transfer')) {
+      await this.page.getByTestId('nav-transfer').click();
+      await this.page.waitForURL(/\/transfer/, { timeout: 10000 });
+    }
+    await this.receiveToggle.waitFor({ state: 'visible' });
     await this.receiveToggle.click();
   }
 }

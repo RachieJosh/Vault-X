@@ -15,9 +15,10 @@ test.describe('Authentication - Login', () => {
     await expect(login.emailInput).toBeVisible();
   });
 
+  // Valid credentials should move the user away from /login (to 2FA or dashboard)
   test('TC_LOGIN_002 - Valid credentials redirect away from login', async ({ page }) => {
     await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
-    await expect(page).toHaveURL(/.*login/);
+    await expect(page).not.toHaveURL(/.*login/);
   });
 
   test('TC_LOGIN_004 - Wrong password shows error', async () => {
@@ -25,20 +26,24 @@ test.describe('Authentication - Login', () => {
     await expect(login.errorMessage).toBeVisible();
   });
 
- test('TC_LOGIN_006 - Empty form shows error', async () => {
-  await login.submitButton.click();
+  test('TC_LOGIN_006 - Empty form shows error', async () => {
+    await login.submitButton.click();
 
-  const email = login.emailInput;
-
-  const validationMessage = await email.evaluate(
-    (el) => el.validationMessage
-  );
- expect(validationMessage).toMatch(/fill out|required/i);
+    const email = login.emailInput;
+    const validationMessage = await email.evaluate(
+      (el) => el.validationMessage
+    );
+    expect(validationMessage).toMatch(/fill out|required/i);
   });
 
+  // A logged-in user visiting /login should be redirected away from it
   test('TC_LOGIN_010 - Logged-in user redirected away from login page', async ({ page }) => {
     await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
+    // Wait until we're past the login page (2FA or dashboard)
+    await expect(page).not.toHaveURL(/.*login/);
+    // Attempt to navigate back to /login
     await page.goto('/login');
-    await expect(page).toHaveURL(/.*login/);
+    await expect(page).not.toHaveURL(/.*login/);
   });
+
 });

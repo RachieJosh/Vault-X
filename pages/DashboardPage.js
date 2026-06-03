@@ -10,6 +10,10 @@ export class DashboardPage {
   }
 
   async goto() {
-    await this.page.goto('/dashboard');
+    if (!this.page.url().includes('/dashboard')) {
+      await this.page.getByTestId('nav-dashboard').click();
+      await this.page.waitForURL(/\/dashboard/, { timeout: 10000 });
+    }
+    await this.screen.waitFor({ state: 'visible' });
   }
 }

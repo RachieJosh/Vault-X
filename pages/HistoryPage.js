@@ -15,6 +15,10 @@ export class HistoryPage {
   }
 
   async goto() {
-    await this.page.goto('/history');
+    if (!this.page.url().includes('/history')) {
+      await this.page.getByTestId('nav-history').click();
+      await this.page.waitForURL(/\/history/, { timeout: 10000 });
+    }
+    await this.screen.waitFor({ state: 'visible' });
   }
 }
