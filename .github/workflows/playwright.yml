@@ -28,6 +28,7 @@ jobs:
       env:
         TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
         TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        TEST_OTP_SECRET: ${{ secrets.TEST_OTP_SECRET }}
       run: npx playwright test
 
     - uses: actions/upload-artifact@v4

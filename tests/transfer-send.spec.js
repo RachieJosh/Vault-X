@@ -61,12 +61,19 @@ test.describe('Transfer - Send', () => {
     await expect(page.getByTestId('receive-address-value')).toBeVisible();
   });
 
-  test('TC_SEND_011 - Verify zero amount shows error', async () => {
+  test('TC_SEND_011 - Verify exact balance transfer succeeds', async ({ page }) => {
+    const balanceText = await send.balanceAmount.innerText();
+    const balance = parseFloat(balanceText.replace(/[^0-9.]/g, ''));
+    await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, balance);
+    await expect(send.successScreen).toBeVisible({ timeout: 30000 });
+  });
+
+  test('TC_SEND_012 - Verify zero amount shows error', async () => {
     await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, 0);
     await expect(send.errorAmount).toBeVisible();
   });
 
-  test('TC_SEND_012 - Verify negative amount shows error', async () => {
+  test('TC_SEND_013 - Verify negative amount shows error', async () => {
     await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, -50);
     await expect(send.errorAmount).toBeVisible();
   });

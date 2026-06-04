@@ -8,6 +8,7 @@ export class SendPage {
     this.noteInput = page.getByTestId('input-note');
     this.submitButton = page.getByTestId('btn-submit-transfer');
     this.backButton = page.getByRole('button', { name: '← Back' });
+    this.balanceAmount = page.getByTestId('available-balance');
     this.errorAmount = page.getByTestId('error-amount');
     this.errorAddress = page.getByTestId('error-address');
     this.successScreen = page.getByTestId('screen-transfer-success');
