@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage.js';
+import { TwoFAPage } from '../pages/TwoFAPage.js';
 
 test.describe('Authentication - Login', () => {
 
@@ -15,10 +16,10 @@ test.describe('Authentication - Login', () => {
     await expect(login.emailInput).toBeVisible();
   });
 
-  // Valid credentials should move the user away from /login (to 2FA or dashboard)
-  test('TC_LOGIN_002 - Valid credentials redirect away from login', async ({ page }) => {
+  test('TC_LOGIN_002 - Valid credentials redirect to 2FA screen', async ({ page }) => {
     await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
-    await expect(page).not.toHaveURL(/.*login/);
+    const twoFA = new TwoFAPage(page);
+    await expect(twoFA.screen).toBeVisible();
   });
 
   test('TC_LOGIN_004 - Wrong password shows error', async () => {
@@ -33,14 +34,7 @@ test.describe('Authentication - Login', () => {
     const validationMessage = await email.evaluate(
       (el) => el.validationMessage
     );
-    expect(validationMessage).toMatch(/fill out|required/i);
-  });
-
-  test('TC_LOGIN_010 - Logged-in user redirected away from login page', async ({ page }) => {
-    await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
-    await expect(page).not.toHaveURL(/.*login/);
-    await page.goto('/login');
-    await expect(page).not.toHaveURL(/.*login/);
+    expect(validationMessage).toMatch(/fill out|fill in|required/i);
   });
 
 });

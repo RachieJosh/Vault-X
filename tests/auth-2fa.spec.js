@@ -13,32 +13,27 @@ test.describe('Authentication - 2FA', () => {
     await login.login(process.env.TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
   });
  
-  test('TC-2FA-001 - Verify OTP screen renders after login', async () => {
+  test('TC_2FA_001 - Verify OTP screen renders after login', async () => {
     await expect(twoFA.screen).toBeVisible();
   });
  
-  /**
-   * Still in progress — enterOTP already clicks submit internally,
-   * so the extra submitButton.click() below was a double-click bug.
-   * Leaving commented until OTP generation is wired up.
-   *
-   * test('TC-2FA-002 - Verify valid OTP completes login', async ({ page }) => {
-   *   await twoFA.enterOTP(process.env.TEST_OTP);
-   *   await expect(page).toHaveURL(/.*dashboard/);
-   * });
-   */
+    test('TC_2FA_002 - Verify valid OTP completes login', async ({ page }) => {
+    await twoFA.enterOTP(process.env.TEST_OTP_SECRET);
+    await expect(page).toHaveURL(/.*dashboard/);
+  });
+  
  
-  test('TC-2FA-006 - Verify back button returns to login', async ({ page }) => {
+  test('TC_2FA_006 - Verify back button returns to login', async ({ page }) => {
     await twoFA.backButton.click();
     await expect(page).toHaveURL(/.*login/);
   });
  
-  test('TC-2FA-007 - Verify wrong OTP shows error', async () => {
+  test('TC_2FA_007 - Verify wrong OTP shows error', async () => {
     await twoFA.enterOTP('000000');
     await expect(twoFA.errorMessage).toBeVisible();
   });
  
-  test('TC-2FA-008 - Verify partial OTP keeps submit button disabled', async () => {
+  test('TC_2FA_008 - Verify partial OTP keeps submit button disabled', async () => {
     await twoFA.otpInputs(0).fill('1');
     await twoFA.otpInputs(1).fill('2');
     await twoFA.otpInputs(2).fill('3');
@@ -50,7 +45,7 @@ test.describe('Authentication - 2FA', () => {
    * user is redirected away instead of staying on the OTP screen.
    * Skipping until the app handles this correctly.
    *
-   * test('TC-2FA-012 - Verify refreshing page stays on 2FA screen', async ({ page }) => {
+   * test('TC_2FA_012 - Verify refreshing page stays on 2FA screen', async ({ page }) => {
    *   await page.reload();
    *   await expect(twoFA.screen).toBeVisible();
    * });

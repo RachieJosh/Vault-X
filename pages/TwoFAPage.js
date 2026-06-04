@@ -11,6 +11,7 @@ export class TwoFAPage {
   }
 
   async enterOTP(otp) {
+    if (!otp) throw new Error(`enterOTP called with no value — check your .env for TEST_OTP_SECRET`);
     const digits = String(otp).trim().split('').slice(0, 6);
 
     for (let i = 0; i < 6; i++) {
