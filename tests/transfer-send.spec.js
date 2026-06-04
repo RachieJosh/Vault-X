@@ -62,6 +62,7 @@ test.describe('Transfer - Send', () => {
   });
 
   test('TC_SEND_011 - Verify exact balance transfer succeeds', async ({ page }) => {
+    await send.balanceAmount.waitFor({ state: 'visible' });
     const balanceText = await send.balanceAmount.innerText();
     const balance = parseFloat(balanceText.replace(/[^0-9.]/g, ''));
     await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, balance);

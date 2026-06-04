@@ -14,5 +14,6 @@ export class ReceivePage {
     }
     await this.receiveToggle.waitFor({ state: 'visible' });
     await this.receiveToggle.click();
+    await this.addressValue.waitFor({ state: 'visible' });
   }
 }

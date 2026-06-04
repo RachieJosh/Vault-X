@@ -46,6 +46,7 @@ test.describe('Navigation & Session', () => {
 
   test('TC_NAV_010 - Verify back button after logout stays on login', async ({ page }) => {
     await nav.logout();
+    await page.waitForURL(/.*login/);
     await page.goBack();
     await expect(page).toHaveURL(/.*login/);
   });
