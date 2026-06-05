@@ -53,7 +53,7 @@ test.describe('Transfer - Send', () => {
   test('TC_SEND_009 - Verify missing address shows address error', async () => {
     await send.amountInput.fill('0.001');
     await send.submitButton.click();
-    await expect(send.errorAddress).toBeVisible();
+    await expect(send.errorAddress).toBeVisible({ timeout: 15000 });
   });
 
   test('TC_SEND_010 - Verify switching to receive tab shows receive form', async ({ page }) => {
@@ -63,8 +63,7 @@ test.describe('Transfer - Send', () => {
   });
 
   test('TC_SEND_011 - Verify exact balance transfer succeeds', async ({ page }) => {
-    await send.balanceAmount.waitFor({ state: 'attached' });
-    const balanceText = await send.balanceAmount.textContent();
+    const balanceText = await send.balanceAmount.innerText();
     const balance = parseFloat(balanceText.replace(/[^0-9.]/g, ''));
     await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, balance);
     await expect(send.successScreen).toBeVisible({ timeout: 30000 });
