@@ -2,9 +2,13 @@ export class ReceivePage {
   constructor(page) {
     this.page = page;
     this.receiveToggle = page.getByTestId('toggle-receive');
-    this.addressValue = page.getByTestId('receive-address-value');
-    this.copyButton = page.getByTestId('btn-copy-address');
     this.assetSelector = page.getByTestId('select-asset');
+    this.amountInput = page.getByTestId('input-amount');
+    this.generateButton = page.getByTestId('btn-submit-transfer');
+    this.successScreen = page.getByTestId('screen-transfer-success');
+    this.txId = page.getByTestId('success-txid');
+    this.successAsset = page.getByTestId('success-asset');
+    this.successAmount = page.getByTestId('success-amount');
   }
 
   async goto() {
@@ -14,6 +18,6 @@ export class ReceivePage {
     }
     await this.receiveToggle.waitFor({ state: 'visible' });
     await this.receiveToggle.click();
-    await this.addressValue.waitFor({ state: 'visible' });
+    await this.generateButton.waitFor({ state: 'visible' });
   }
 }
