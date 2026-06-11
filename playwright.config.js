@@ -10,10 +10,22 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 4 : 2,
-  reporter: 'html',
+  reporter: process.env.CI
+    ? [
+        ['dot'],
+        ['html', { open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+      ]
+    : [
+        ['list'],
+        ['html'],
+      ],
   use: {
     baseURL: 'https://vault-ui-zeta.vercel.app',
+    headless: !!process.env.CI,
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   projects: [
     {
