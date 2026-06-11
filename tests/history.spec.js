@@ -17,8 +17,8 @@ test.describe('History', () => {
     await expect(history.screen).toBeVisible();
   });
 
-  test('TC_HIST_002 - Verify transactions table is visible', async () => {
-    await expect(history.table).toBeVisible();
+  test('TC_HIST_002 - Verify transaction count is displayed', async () => {
+    await expect(history.txCount).toBeVisible();
   });
 
   test('TC_HIST_003 - Verify search input is visible', async () => {
@@ -40,18 +40,18 @@ test.describe('History', () => {
     await expect(history.table.or(history.noResults)).toBeVisible();
   });
 
-  test('TC_HIST_007 - Verify transaction count is displayed', async () => {
-    await expect(history.txCount).toBeVisible();
-  });
-
-  test('TC_HIST_008 - Verify sort control is visible', async () => {
+  test('TC_HIST_012 - Verify sort control is visible', async () => {
     await expect(history.sortBy).toBeVisible();
   });
 
-  test('TC_HIST_009 - Verify unauthenticated user is redirected to login', async ({ page }) => {
+  test('TC_HIST_013 - Verify unauthenticated user is redirected to login', async ({ page }) => {
     await page.context().clearCookies();
     await page.goto('/history');
     await expect(page).toHaveURL(/.*login/);
+  });
+
+   test('TC_HIST_014 - Verify transactions table is visible', async () => {
+    await expect(history.table).toBeVisible();
   });
 
 });
