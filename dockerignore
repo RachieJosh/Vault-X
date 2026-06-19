@@ -1,0 +1,18 @@
+# Dependencies (Docker installs these fresh)
+node_modules
+
+# Secrets (passed at runtime, never baked into the image)
+.env
+
+# Git history (not needed inside container)
+.git
+.gitignore
+
+# Playwright output folders (generated fresh each run)
+test-results
+playwright-report
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.vscode
