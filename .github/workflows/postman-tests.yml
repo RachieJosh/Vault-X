@@ -1,0 +1,37 @@
+name: VaultX Postman Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  postman-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Install Newman HTML Reporter
+        run: npm install -g newman-reporter-htmlextra
+
+      - name: Run Postman Collection
+        run: |
+          newman run VaultX_Postman_Collection_v3.json \
+            --environment VaultX.postman-environment.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export results/postman-report.html
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: postman-test-report
+          path: results/postman-report.html

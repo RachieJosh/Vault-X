@@ -1,0 +1,2553 @@
+{
+  "info": {
+    "_postman_id": "1d33b024-293f-4390-a856-bde1c6984b27",
+    "name": "VaultX API Collection",
+    "description": "Complete Postman test collection for VaultX API. Covers all CRUD endpoints for Users, Wallets, and Transactions, plus System endpoints. Built for QA interns following the VaultX API Docs v1.0.0.\n\n**Base URL variable**: Set `baseUrl` to `https://vault-api-dhun.onrender.com` for staging or `http://localhost:4000` for local.\n\n**Always run**: POST /api/reset before starting a new test session.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51401939"
+  },
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "S-01 \u00b7 Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success is true', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.success).to.be.true;",
+                  "});",
+                  "pm.test('uptime is a positive number', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.uptime).to.be.a('number').and.above(0);",
+                  "});",
+                  "pm.test('counts object has users, wallets, transactions', () => {",
+                  "    const { counts } = pm.response.json();",
+                  "    pm.expect(counts).to.have.keys(['users','wallets','transactions']);",
+                  "});",
+                  "pm.test('status field equals ok', () => {",
+                  "    pm.expect(pm.response.json().status).to.eql('ok');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            },
+            "description": "Verify the API is up, get uptime and record counts."
+          },
+          "response": []
+        },
+        {
+          "name": "S-02 \u00b7 Get Snapshot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                  "pm.test('data contains users array', () => {",
+                  "    const { data } = pm.response.json();",
+                  "    pm.expect(data.users).to.be.an('array');",
+                  "});",
+                  "pm.test('data contains wallets array', () => {",
+                  "    pm.expect(pm.response.json().data.wallets).to.be.an('array');",
+                  "});",
+                  "pm.test('data contains transactions array', () => {",
+                  "    pm.expect(pm.response.json().data.transactions).to.be.an('array');",
+                  "});",
+                  "pm.test('seed has 2 users', () => {",
+                  "    pm.expect(pm.response.json().data.users.length).to.eql(2);",
+                  "});",
+                  "pm.test('seed has 6 wallets', () => {",
+                  "    pm.expect(pm.response.json().data.wallets.length).to.eql(6);",
+                  "});",
+                  "pm.test('seed has 9 transactions', () => {",
+                  "    pm.expect(pm.response.json().data.transactions.length).to.eql(9);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/snapshot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "snapshot"
+              ]
+            },
+            "description": "Returns full in-memory state: all users (no passwords), wallets, and transactions."
+          },
+          "response": []
+        },
+        {
+          "name": "S-03 \u00b7 Reset Database",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                  "pm.test('message confirms reset', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.message).to.include('reset');",
+                  "});",
+                  "// Clear dynamic IDs captured in previous run",
+                  "pm.collectionVariables.set('newUserId', '');",
+                  "pm.collectionVariables.set('newWalletId', '');",
+                  "pm.collectionVariables.set('newTxId', '');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reset"
+              ]
+            },
+            "description": "Wipes all in-memory data and restores seed state. Run this BEFORE every test session and in teardown hooks."
+          },
+          "response": []
+        },
+        {
+          "name": "S-04 \u00b7 Reset Returns Correct Seed Counts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                  "pm.test('message confirms reset', () => pm.expect(pm.response.json().message).to.include('reset'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reset"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "S-05 \u00b7 Snapshot After Reset Has Seeded Records",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('data has 2 seeded users', () => pm.expect(pm.response.json().data.users.length).to.eql(2));",
+                  "pm.test('data has 6 seeded wallets', () => pm.expect(pm.response.json().data.wallets.length).to.eql(6));",
+                  "pm.test('data has 9 seeded transactions', () => pm.expect(pm.response.json().data.transactions.length).to.eql(9));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/snapshot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "snapshot"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "S-EC1 \u00b7 Health Check (verify uptime increments)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('uptime is a positive number', () => {",
+                  "    pm.expect(pm.response.json().uptime).to.be.a('number').and.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Health, snapshot, and reset endpoints. Always start your session here."
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "\u2705 Positive",
+          "item": [
+            {
+              "name": "U-01 \u00b7 List All Users",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('data is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+                      "pm.test('count matches data length', () => {",
+                      "    const body = pm.response.json();",
+                      "    pm.expect(body.count).to.eql(body.data.length);",
+                      "});",
+                      "pm.test('no user has a password field', () => {",
+                      "    const users = pm.response.json().data;",
+                      "    users.forEach(u => pm.expect(u).to.not.have.property('password'));",
+                      "});",
+                      "pm.test('seed users are present', () => {",
+                      "    const ids = pm.response.json().data.map(u => u.id);",
+                      "    pm.expect(ids).to.include('user_001');",
+                      "    pm.expect(ids).to.include('user_002');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "description": "Returns all users. Passwords are stripped from every user object."
+              },
+              "response": []
+            },
+            {
+              "name": "U-02 \u00b7 Get User by ID (valid)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('data.id equals user_001', () => {",
+                      "    pm.expect(pm.response.json().data.id).to.eql('user_001');",
+                      "});",
+                      "pm.test('data.name is Jordan Okafor', () => {",
+                      "    pm.expect(pm.response.json().data.name).to.eql('Jordan Okafor');",
+                      "});",
+                      "pm.test('no password in response', () => {",
+                      "    pm.expect(pm.response.json().data).to.not.have.property('password');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_001"
+                  ]
+                },
+                "description": "Happy path: returns Jordan Okafor's user object."
+              },
+              "response": []
+            },
+            {
+              "name": "U-04 \u00b7 Create User (valid)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('id is auto-generated', () => {",
+                      "    const user = pm.response.json().data;",
+                      "    pm.expect(user.id).to.be.a('string').and.not.empty;",
+                      "    pm.collectionVariables.set('newUserId', user.id);",
+                      "});",
+                      "pm.test('avatar is auto-generated from name', () => {",
+                      "    pm.expect(pm.response.json().data.avatar).to.eql('GT');",
+                      "});",
+                      "pm.test('password is NOT returned', () => {",
+                      "    pm.expect(pm.response.json().data).to.not.have.property('password');",
+                      "});",
+                      "pm.test('email matches what was sent', () => {",
+                      "    pm.expect(pm.response.json().data.email).to.eql('greyqa@vaultx.io');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"greyqa@vaultx.io\",\n  \"password\": \"Secure@123\",\n  \"name\": \"Grey Tester\",\n  \"role\": \"QA Intern\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "description": "Happy path: create a new user. Captures the new ID into newUserId collection variable for downstream tests."
+              },
+              "response": []
+            },
+            {
+              "name": "U-07 \u00b7 Update User (valid PATCH)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('name is updated', () => {",
+                      "    pm.expect(pm.response.json().data.name).to.eql('Jordan Okafor Senior');",
+                      "});",
+                      "pm.test('role is updated', () => {",
+                      "    pm.expect(pm.response.json().data.role).to.eql('QA Lead');",
+                      "});",
+                      "pm.test('avatar regenerated from new name', () => {",
+                      "    pm.expect(pm.response.json().data.avatar).to.eql('JO');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Jordan Okafor Senior\",\n  \"role\": \"QA Lead\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_001"
+                  ]
+                },
+                "description": "Happy path: update user_001's name and role. Avatar should auto-regenerate."
+              },
+              "response": []
+            },
+            {
+              "name": "U-08 \u00b7 Delete User (valid)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('message confirms deletion', () => {",
+                      "    pm.expect(pm.response.json().message).to.include('user_002');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_002",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_002"
+                  ]
+                },
+                "description": "Deletes user_002 (Priya Nair). Run POST /api/reset to restore."
+              },
+              "response": []
+            },
+            {
+              "name": "U-09 \u00b7 Create User (minimal valid fields)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('id auto-generated', () => pm.expect(pm.response.json().data.id).to.be.a('string').and.not.empty);",
+                      "pm.test('no password in response', () => pm.expect(pm.response.json().data).to.not.have.property('password'));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"minimal@vaultx.io\",\n  \"password\": \"Valid@999\",\n  \"name\": \"Minimal User\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "U-10 \u00b7 Update User (change email)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('email updated', () => pm.expect(pm.response.json().data.email).to.eql('updated@vaultx.io'));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_001"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"updated@vaultx.io\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "\u274c Negative",
+          "item": [
+            {
+              "name": "U-03 \u00b7 Get User by ID (not found)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error message is present', () => {",
+                      "    pm.expect(pm.response.json().error).to.be.a('string').and.not.empty;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_999"
+                  ]
+                },
+                "description": "Negative test: ID does not exist. Expect 404."
+              },
+              "response": []
+            },
+            {
+              "name": "U-05 \u00b7 Create User (duplicate email \u2014 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 409', () => pm.response.to.have.status(409));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error message mentions email or already exists', () => {",
+                      "    const err = pm.response.json().error.toLowerCase();",
+                      "    pm.expect(err).to.satisfy(e => e.includes('email') || e.includes('exist') || e.includes('registered'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"qa@vaultx.io\",\n  \"password\": \"Test@1234\",\n  \"name\": \"Duplicate User\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "description": "Negative: email already registered. Expect 409 Conflict."
+              },
+              "response": []
+            },
+            {
+              "name": "U-06 \u00b7 Create User (missing fields \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error message is a non-empty string', () => {",
+                      "    pm.expect(pm.response.json().error).to.be.a('string').and.not.empty;",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"incomplete@vaultx.io\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "description": "Negative: missing password and name. Expect 400."
+              },
+              "response": []
+            },
+            {
+              "name": "U-11 \u00b7 Delete Non-Existent User (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error message present', () => pm.expect(pm.response.json().error).to.be.a('string').and.not.empty);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_ghost",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_ghost"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "U-12 \u00b7 Create User (invalid email format \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"Valid@123\",\n  \"name\": \"Bad Email\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "U-13 \u00b7 Update Non-Existent User (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_ghost",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_ghost"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Ghost Update\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "U-EC1 \u00b7 Create User (empty body \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "U-EC2 \u00b7 Get User (special chars in ID \u2014 404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/users/user_@#$",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "users",
+                    "user_@#$"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "response": []
+        }
+      ],
+      "description": "CRUD operations for user accounts. Seed users: user_001 (Jordan Okafor), user_002 (Priya Nair)."
+    },
+    {
+      "name": "Wallets",
+      "item": [
+        {
+          "name": "\u2705 Positive",
+          "item": [
+            {
+              "name": "W-01 \u00b7 List All Wallets",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('data is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+                      "pm.test('seed has 6 wallets', () => {",
+                      "    pm.expect(pm.response.json().data.length).to.eql(6);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-02 \u00b7 Filter Wallets by userId",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('count is 4 for user_001', () => {",
+                      "    pm.expect(pm.response.json().count).to.eql(4);",
+                      "});",
+                      "pm.test('all wallets belong to user_001', () => {",
+                      "    const wallets = pm.response.json().data;",
+                      "    wallets.forEach(w => pm.expect(w.userId).to.eql('user_001'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets?userId=user_001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ],
+                  "query": [
+                    {
+                      "key": "userId",
+                      "value": "user_001"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-04 \u00b7 Create Wallet (valid)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('id is generated', () => {",
+                      "    const wallet = pm.response.json().data;",
+                      "    pm.expect(wallet.id).to.be.a('string').and.not.empty;",
+                      "    pm.collectionVariables.set('newWalletId', wallet.id);",
+                      "});",
+                      "pm.test('symbol stored uppercase', () => {",
+                      "    pm.expect(pm.response.json().data.symbol).to.eql('BNB');",
+                      "});",
+                      "pm.test('balance matches body', () => {",
+                      "    pm.expect(pm.response.json().data.balance).to.eql(10);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"symbol\": \"BNB\",\n  \"name\": \"BNB Chain\",\n  \"balance\": 10,\n  \"usdRate\": 580,\n  \"color\": \"#F3BA2F\",\n  \"icon\": \"\u2b21\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-06 \u00b7 Update Wallet Balance",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('balance updated to 2.5', () => {",
+                      "    pm.expect(pm.response.json().data.balance).to.eql(2.5);",
+                      "});",
+                      "pm.test('usdRate updated to 70000', () => {",
+                      "    pm.expect(pm.response.json().data.usdRate).to.eql(70000);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"balance\": 2.5,\n  \"usdRate\": 70000\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets/w1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets",
+                    "w1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-07 \u00b7 Delete Wallet",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('message confirms w4 deleted', () => {",
+                      "    pm.expect(pm.response.json().message).to.include('w4');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets/w4",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets",
+                    "w4"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-08 \u00b7 Get Wallet by ID (valid \u2014 w1)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('wallet id is w1', () => pm.expect(pm.response.json().data.id).to.eql('w1'));",
+                      "pm.test('symbol is BTC', () => pm.expect(pm.response.json().data.symbol).to.eql('BTC'));",
+                      "pm.test('balance is a number', () => pm.expect(pm.response.json().data.balance).to.be.a('number'));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets/w1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets",
+                    "w1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-09 \u00b7 Filter Wallets by userId (user_002)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('count is 2 for user_002', () => pm.expect(pm.response.json().count).to.eql(2));",
+                      "pm.test('all wallets belong to user_002', () => {",
+                      "    pm.response.json().data.forEach(w => pm.expect(w.userId).to.eql('user_002'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets?userId=user_002",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ],
+                  "query": [
+                    {
+                      "key": "userId",
+                      "value": "user_002"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-10 \u00b7 Create Wallet (ETH for user_002)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('symbol is ETH', () => pm.expect(pm.response.json().data.symbol).to.eql('ETH'));",
+                      "pm.test('userId is user_002', () => pm.expect(pm.response.json().data.userId).to.eql('user_002'));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_002\",\n  \"symbol\": \"ETH\",\n  \"name\": \"Ethereum\",\n  \"balance\": 5,\n  \"usdRate\": 3200\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "\u274c Negative",
+          "item": [
+            {
+              "name": "W-03 \u00b7 Get Wallet by ID (not found)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets/w999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets",
+                    "w999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-05 \u00b7 Create Wallet (invalid userId \u2014 404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_ghost\",\n  \"symbol\": \"ETH\",\n  \"name\": \"Ethereum\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-11 \u00b7 Create Wallet (missing symbol \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error is non-empty string', () => pm.expect(pm.response.json().error).to.be.a('string').and.not.empty);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"name\": \"No Symbol Wallet\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-12 \u00b7 Update Non-Existent Wallet (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets/w999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets",
+                    "w999"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"balance\": 100\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-13 \u00b7 Delete Non-Existent Wallet (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets/w999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets",
+                    "w999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-EC1 \u00b7 Create Wallet (negative balance \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"symbol\": \"BTC\",\n  \"name\": \"Bitcoin\",\n  \"balance\": -50\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "W-EC2 \u00b7 Create Wallet (empty symbol \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/wallets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "wallets"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"symbol\": \"\",\n  \"name\": \"Empty Symbol\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ],
+          "response": []
+        }
+      ],
+      "description": "CRUD for crypto wallets. Seed wallets: w1(BTC), w2(ETH), w3(USDT), w4(SOL) for user_001; w5(ETH), w6(USDT) for user_002."
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "\u2705 Positive",
+          "item": [
+            {
+              "name": "T-01 \u00b7 List All Transactions",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('data is an array', () => pm.expect(pm.response.json().data).to.be.an('array'));",
+                      "pm.test('pagination fields present', () => {",
+                      "    const body = pm.response.json();",
+                      "    pm.expect(body).to.have.property('total');",
+                      "    pm.expect(body).to.have.property('limit');",
+                      "    pm.expect(body).to.have.property('offset');",
+                      "});",
+                      "pm.test('sorted newest first (dates descending)', () => {",
+                      "    const txs = pm.response.json().data;",
+                      "    if (txs.length > 1) {",
+                      "        const d1 = new Date(txs[0].date);",
+                      "        const d2 = new Date(txs[1].date);",
+                      "        pm.expect(d1.getTime()).to.be.at.least(d2.getTime());",
+                      "    }",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-02 \u00b7 Filter by userId",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('all results belong to user_001', () => {",
+                      "    pm.response.json().data.forEach(tx => pm.expect(tx.userId).to.eql('user_001'));",
+                      "});",
+                      "pm.test('seed has 8 transactions for user_001', () => {",
+                      "    pm.expect(pm.response.json().count).to.eql(8);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions?userId=user_001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "userId",
+                      "value": "user_001"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-03 \u00b7 Filter by status=pending",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('all results have status pending', () => {",
+                      "    pm.response.json().data.forEach(tx => pm.expect(tx.status).to.eql('pending'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions?status=pending",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "pending"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-04 \u00b7 Filter by asset=BTC",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('all results are BTC asset', () => {",
+                      "    pm.response.json().data.forEach(tx => pm.expect(tx.asset).to.eql('BTC'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions?asset=BTC",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "asset",
+                      "value": "BTC"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-05 \u00b7 Pagination (limit=3 offset=0)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('data has max 3 results', () => {",
+                      "    pm.expect(pm.response.json().data.length).to.be.at.most(3);",
+                      "});",
+                      "pm.test('total reflects full count', () => {",
+                      "    pm.expect(pm.response.json().total).to.be.at.least(pm.response.json().count);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions?limit=3&offset=0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "3"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "0"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-07 \u00b7 Create Receive Transaction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('transaction id is created', () => {",
+                      "    const tx = pm.response.json().data;",
+                      "    pm.expect(tx.id).to.be.a('string').and.not.empty;",
+                      "    pm.collectionVariables.set('newTxId', tx.id);",
+                      "});",
+                      "pm.test('type is receive', () => pm.expect(pm.response.json().data.type).to.eql('receive'));",
+                      "pm.test('asset is ETH', () => pm.expect(pm.response.json().data.asset).to.eql('ETH'));",
+                      "pm.test('amount is 2', () => pm.expect(pm.response.json().data.amount).to.eql(2));",
+                      "pm.test('usdValue is calculated', () => {",
+                      "    pm.expect(pm.response.json().data.usdValue).to.be.a('number').and.above(0);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"receive\",\n  \"asset\": \"ETH\",\n  \"amount\": 2.0,\n  \"from\": \"0xABCD...1234\",\n  \"note\": \"Staking reward\",\n  \"status\": \"pending\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-08 \u00b7 Create Send Transaction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('type is send', () => pm.expect(pm.response.json().data.type).to.eql('send'));",
+                      "pm.test('amount is 100', () => pm.expect(pm.response.json().data.amount).to.eql(100));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"send\",\n  \"asset\": \"USDT\",\n  \"amount\": 100,\n  \"to\": \"0xDEAD...BEEF\",\n  \"note\": \"Test send\",\n  \"status\": \"completed\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-11 \u00b7 Update Transaction Status (pending \u2192 completed)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('status updated to completed', () => {",
+                      "    pm.expect(pm.response.json().data.status).to.eql('completed');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"completed\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx003",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx003"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-13 \u00b7 Delete Transaction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('message confirms deletion', () => {",
+                      "    pm.expect(pm.response.json().message).to.include('tx008');",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx008",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx008"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-14 \u00b7 Get Transaction by ID (valid \u2014 tx001)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('success is true', () => pm.expect(pm.response.json().success).to.be.true);",
+                      "pm.test('transaction id is tx001', () => pm.expect(pm.response.json().data.id).to.eql('tx001'));",
+                      "pm.test('usdValue is a positive number', () => pm.expect(pm.response.json().data.usdValue).to.be.a('number').and.above(0));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx001"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-15 \u00b7 Create SOL Receive Transaction",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                      "pm.test('asset is SOL', () => pm.expect(pm.response.json().data.asset).to.eql('SOL'));",
+                      "pm.test('type is receive', () => pm.expect(pm.response.json().data.type).to.eql('receive'));",
+                      "pm.test('usdValue is calculated', () => pm.expect(pm.response.json().data.usdValue).to.be.a('number').and.above(0));"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"receive\",\n  \"asset\": \"SOL\",\n  \"amount\": 50,\n  \"from\": \"0xSOL...ADDR\",\n  \"status\": \"completed\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-16 \u00b7 Filter Transactions by asset=ETH",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('all returned transactions are ETH', () => {",
+                      "    pm.response.json().data.forEach(tx => pm.expect(tx.asset).to.eql('ETH'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions?asset=ETH",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "asset",
+                      "value": "ETH"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-17 \u00b7 Filter Transactions by status=completed",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                      "pm.test('all results have status completed', () => {",
+                      "    pm.response.json().data.forEach(tx => pm.expect(tx.status).to.eql('completed'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions?status=completed",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "completed"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "\u274c Negative",
+          "item": [
+            {
+              "name": "T-06 \u00b7 Get Transaction (not found)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-09 \u00b7 Send Exceeds Balance (422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 422', () => pm.response.to.have.status(422));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error mentions balance or insufficient', () => {",
+                      "    const err = pm.response.json().error.toLowerCase();",
+                      "    pm.expect(err).to.satisfy(e => e.includes('balance') || e.includes('insufficient'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"send\",\n  \"asset\": \"BTC\",\n  \"amount\": 9999999,\n  \"to\": \"0xDEAD...BEEF\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-10 \u00b7 Invalid Asset (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"receive\",\n  \"asset\": \"DOGE\",\n  \"amount\": 1000\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-12 \u00b7 Update Transaction with Invalid Status (400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);",
+                      "pm.test('error message lists valid statuses', () => {",
+                      "    const err = pm.response.json().error.toLowerCase();",
+                      "    pm.expect(err).to.satisfy(e => e.includes('pending') || e.includes('completed') || e.includes('status'));",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"approved\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx001"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-18 \u00b7 Create Transaction (missing userId \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": \"receive\",\n  \"asset\": \"BTC\",\n  \"amount\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-19 \u00b7 Create Transaction (zero amount \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"receive\",\n  \"asset\": \"BTC\",\n  \"amount\": 0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-20 \u00b7 Delete Non-Existent Transaction (404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 404', () => pm.response.to.have.status(404));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx999",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx999"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-21 \u00b7 Create Transaction (negative amount \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"send\",\n  \"asset\": \"ETH\",\n  \"amount\": -5\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-EC1 \u00b7 Create Transaction (string amount \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"receive\",\n  \"asset\": \"BTC\",\n  \"amount\": \"one\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-EC2 \u00b7 Create Transaction (invalid type \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"user_001\",\n  \"type\": \"withdraw\",\n  \"asset\": \"BTC\",\n  \"amount\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "T-EC3 \u00b7 Update Transaction (missing status field \u2014 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 400', () => pm.response.to.have.status(400));",
+                      "pm.test('success is false', () => pm.expect(pm.response.json().success).to.be.false);"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/transactions/tx001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "transactions",
+                    "tx001"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ],
+          "response": []
+        }
+      ],
+      "description": "CRUD for transactions. Creating a transaction auto-adjusts wallet balance. Valid types: send | receive. Valid assets: BTC | ETH | USDT | SOL. Valid statuses: pending | completed | failed."
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://vault-api-dhun.onrender.com",
+      "type": "string",
+      "description": {
+        "content": "Switch to http://localhost:4000 for local dev",
+        "type": "text/plain"
+      }
+    },
+    {
+      "key": "newUserId",
+      "value": "",
+      "type": "string",
+      "description": {
+        "content": "Auto-set by POST /api/users test script",
+        "type": "text/plain"
+      }
+    },
+    {
+      "key": "newWalletId",
+      "value": "",
+      "type": "string",
+      "description": {
+        "content": "Auto-set by POST /api/wallets test script",
+        "type": "text/plain"
+      }
+    },
+    {
+      "key": "newTxId",
+      "value": "",
+      "type": "string",
+      "description": {
+        "content": "Auto-set by POST /api/transactions test script",
+        "type": "text/plain"
+      }
+    }
+  ]
+}

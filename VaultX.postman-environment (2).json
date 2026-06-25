@@ -1,0 +1,76 @@
+{
+	"id": "9bdba4ad-ceb5-4fa4-af50-afdca5ee1b2b",
+	"name": "VaultX",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "https://vault-api-dhun.onrender.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "userId1",
+			"value": "user_001",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "userId2",
+			"value": "user_002",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "walletId1",
+			"value": "w1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "walletId2",
+			"value": "w2",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "transactionId1",
+			"value": "tx001",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "transactionId2",
+			"value": "tx002",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "testUserEmail",
+			"value": "testuser@vaultx.io",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testUserPassword",
+			"value": "Test@1234",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "defaultAsset",
+			"value": "BTC",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-06-25T00:00:00.000Z",
+	"_postman_exported_using": "Postman/11.101.0"
+}
