@@ -24,7 +24,7 @@ jobs:
 
       - name: Run Postman Collection
         run: |
-          newman run VaultX_Postman_Collection_v3.json \
+          newman run VaultX-Postman-Collection.json \
             --environment VaultX.postman-environment.json \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export results/postman-report.html
