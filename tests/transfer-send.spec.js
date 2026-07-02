@@ -26,11 +26,6 @@ test.describe('Transfer - Send', () => {
     await expect(send.submitButton).toBeVisible();
   });
 
-  test('TC_SEND_004 - Verify valid send completes and shows success screen', async () => {
-    await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, 0.1);
-    await expect(send.successScreen).toBeVisible({ timeout: 30000 });
-  });
-
   test('TC_SEND_005 - Verify asset selector contains multiple assets', async () => {
     const options = await send.assetSelector.locator('option').count();
     expect(options).toBeGreaterThan(1);
@@ -62,13 +57,6 @@ test.describe('Transfer - Send', () => {
     await expect(page.getByTestId('btn-submit-transfer')).toContainText('Generate Address');
   });
 
-  test('TC_SEND_011 - Verify exact balance transfer succeeds', async ({ page }) => {
-    const balanceText = await send.balanceAmount.textContent();
-    const balance = parseFloat(balanceText.replace(/[^0-9.]/g, ''));
-    await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, balance);
-    await expect(send.successScreen).toBeVisible({ timeout: 30000 });
-  });
-
   test('TC_SEND_012 - Verify zero amount shows error', async () => {
     await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, 0);
     await expect(send.errorAmount).toBeVisible();
@@ -77,6 +65,23 @@ test.describe('Transfer - Send', () => {
   test('TC_SEND_013 - Verify negative amount shows error', async () => {
     await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, -50);
     await expect(send.errorAmount).toBeVisible();
+  });
+
+  // Serialized: both send real funds against the same shared wallet balance.
+  test.describe.serial('wallet-mutating', () => {
+
+    test('TC_SEND_004 - Verify valid send completes and shows success screen', async () => {
+      await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, 0.1);
+      await expect(send.successScreen).toBeVisible({ timeout: 30000 });
+    });
+
+    test('TC_SEND_011 - Verify exact balance transfer succeeds', async ({ page }) => {
+      const balanceText = await send.balanceAmount.textContent();
+      const balance = parseFloat(balanceText.replace(/[^0-9.]/g, ''));
+      await send.sendFunds(process.env.TEST_RECIPIENT_ADDRESS, balance);
+      await expect(send.successScreen).toBeVisible({ timeout: 30000 });
+    });
+
   });
 
 });

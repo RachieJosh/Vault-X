@@ -3,7 +3,7 @@ import { LoginPage } from '../pages/LoginPage.js';
 import { TwoFAPage } from '../pages/TwoFAPage.js';
  
 test.describe('Authentication - 2FA', () => {
- 
+
   let twoFA;
  
   test.beforeEach(async ({ page }) => {
@@ -40,15 +40,9 @@ test.describe('Authentication - 2FA', () => {
     await expect(twoFA.submitButton).toBeDisabled();
   });
  
-  /**
-   * BUG: Refreshing the 2FA page does not preserve session state —
-   * user is redirected away instead of staying on the OTP screen.
-   * Skipping until the app handles this correctly.
-   *
-   * test('TC_2FA_012 - Verify refreshing page stays on 2FA screen', async ({ page }) => {
-   *   await page.reload();
-   *   await expect(twoFA.screen).toBeVisible();
-   * });
-   */
- 
+  test('TC_2FA_012 - Verify refreshing page stays on 2FA screen', async ({ page }) => {
+    await page.reload();
+    await expect(twoFA.screen).toBeVisible();
+  });
+
 });

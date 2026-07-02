@@ -22,44 +22,49 @@ test.describe('Transfer - Receive', () => {
     await expect(receive.assetSelector).toBeVisible();
   });
 
-  test('TC_RCV_003 - Verify generating a receive request returns a transaction ID', async () => {
-    await receive.amountInput.fill('0.1');
-    await receive.generateButton.click();
-    await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
-    const txId = await receive.txId.textContent();
-    expect(txId.trim().length).toBeGreaterThan(0);
-  });
+  // Serialized: these all generate real receive requests against the same shared wallet/history.
+  test.describe.serial('wallet-mutating', () => {
 
-  test('TC_RCV_004 - Verify receive success screen shows the submitted amount', async () => {
-    await receive.amountInput.fill('0.25');
-    await receive.generateButton.click();
-    await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
-    await expect(receive.successAmount).toContainText('0.25');
-  });
+    test('TC_RCV_003 - Verify generating a receive request returns a transaction ID', async () => {
+      await receive.amountInput.fill('0.1');
+      await receive.generateButton.click();
+      await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
+      const txId = await receive.txId.textContent();
+      expect(txId.trim().length).toBeGreaterThan(0);
+    });
 
-  test('TC_RCV_005 - Verify switching asset is reflected on the success screen', async () => {
-    await receive.assetSelector.selectOption('ETH');
-    await receive.amountInput.fill('0.1');
-    await receive.generateButton.click();
-    await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
-    await expect(receive.successAsset).toHaveText('ETH');
-  });
+    test('TC_RCV_004 - Verify receive success screen shows the submitted amount', async () => {
+      await receive.amountInput.fill('0.25');
+      await receive.generateButton.click();
+      await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
+      await expect(receive.successAmount).toContainText('0.25');
+    });
 
-  test('TC_RCV_006 - Verify submitting a receive request creates a transaction in history', async ({ page }) => {
-    const history = new HistoryPage(page);
-    await history.goto();
-    const initialCountText = await history.txCount.innerText();
-    const initialCount = parseInt(initialCountText, 10);
+    test('TC_RCV_005 - Verify switching asset is reflected on the success screen', async () => {
+      await receive.assetSelector.selectOption('ETH');
+      await receive.amountInput.fill('0.1');
+      await receive.generateButton.click();
+      await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
+      await expect(receive.successAsset).toHaveText('ETH');
+    });
 
-    await receive.goto();
-    await receive.amountInput.fill('0.01');
-    await receive.generateButton.click();
-    await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
+    test('TC_RCV_006 - Verify submitting a receive request creates a transaction in history', async ({ page }) => {
+      const history = new HistoryPage(page);
+      await history.goto();
+      const initialCountText = await history.txCount.innerText();
+      const initialCount = parseInt(initialCountText, 10);
 
-    await history.goto();
-    const newCountText = await history.txCount.innerText();
-    const newCount = parseInt(newCountText, 10);
-    expect(newCount).toBeGreaterThan(initialCount);
+      await receive.goto();
+      await receive.amountInput.fill('0.01');
+      await receive.generateButton.click();
+      await expect(receive.successScreen).toBeVisible({ timeout: 15000 });
+
+      await history.goto();
+      const newCountText = await history.txCount.innerText();
+      const newCount = parseInt(newCountText, 10);
+      expect(newCount).toBeGreaterThan(initialCount);
+    });
+
   });
 
 });

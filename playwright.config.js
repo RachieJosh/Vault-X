@@ -22,7 +22,7 @@ export default defineConfig({
       ],
   use: {
     baseURL: 'https://vault-ui-zeta.vercel.app',
-    headless: !!process.env.CI,
+    headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
